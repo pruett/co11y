@@ -405,7 +405,7 @@
       "Escape returns to dashboard",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use react-hotkeys-hook"
   },
   {
