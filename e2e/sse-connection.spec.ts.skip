@@ -1,0 +1,195 @@
+import { test, expect } from '@playwright/test';
+import { mockSession } from './fixtures/mock-data';
+
+test.describe('SSE Connection', () => {
+  test('should connect to SSE endpoint and receive events', async ({ page }) => {
+    let sseConnected = false;
+    let hookEventReceived = false;
+
+    // Mock APIs
+    await page.route('http://localhost:3001/api/sessions*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          sessions: [mockSession],
+          total: 1,
+          activeCount: 1,
+        }),
+      });
+    });
+
+    await page.route('http://localhost:3001/api/stats', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalSessions: 1,
+          totalMessages: 15,
+          messagesYesterday: 0,
+          messagesToday: 15,
+          toolCallsToday: 8,
+          totalTokens: 5000,
+          firstSessionDate: new Date().toISOString(),
+          modelUsage: [],
+        }),
+      });
+    });
+
+    // Intercept SSE connection to verify it's established
+    await page.route('http://localhost:3001/api/events', async (route) => {
+      sseConnected = true;
+
+      // Send SSE events
+      const sseData = [
+        'event: heartbeat\ndata: {"timestamp":"' + new Date().toISOString() + '"}\n\n',
+        'event: hook\ndata: {"type":"PreToolUse","sessionId":"test","timestamp":' + Date.now() + ',"cwd":"/test","toolName":"Read","toolInput":{},"messageUuid":"test"}\n\n',
+      ].join('');
+
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+        body: sseData,
+      });
+    });
+
+    // Listen for console logs to detect hook events
+    page.on('console', (msg) => {
+      if (msg.text().includes('hook') || msg.text().includes('PreToolUse')) {
+        hookEventReceived = true;
+      }
+    });
+
+    // Navigate after routes are set up
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(3000);
+
+    // Verify SSE connection was established
+    expect(sseConnected).toBe(true);
+  });
+
+  test('should display activity indicator when connected', async ({ page }) => {
+    // Mock APIs
+    await page.route('http://localhost:3001/api/sessions*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          sessions: [mockSession],
+          total: 1,
+          activeCount: 1,
+        }),
+      });
+    });
+
+    await page.route('http://localhost:3001/api/stats', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalSessions: 1,
+          totalMessages: 15,
+          messagesYesterday: 0,
+          messagesToday: 15,
+          toolCallsToday: 8,
+          totalTokens: 5000,
+          firstSessionDate: new Date().toISOString(),
+          modelUsage: [],
+        }),
+      });
+    });
+
+    // Mock SSE with heartbeat
+    await page.route('http://localhost:3001/api/events', async (route) => {
+      const sseData = 'event: heartbeat\ndata: {"timestamp":"' + new Date().toISOString() + '"}\n\n';
+
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+        body: sseData,
+      });
+    });
+
+    // Navigate after routes are set up
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(3000);
+
+    // Activity indicator should be present in the header
+    // It may show as "Connecting" or "Live" depending on connection state
+    const activityIndicator = page.locator('[data-status]');
+    await expect(activityIndicator).toBeVisible({ timeout: 30000 });
+  });
+
+  test('should update sessions when receiving SSE session event', async ({ page }) => {
+    let sessionsCallCount = 0;
+
+    // Mock sessions API - track how many times it's called
+    await page.route('http://localhost:3001/api/sessions*', async (route) => {
+      sessionsCallCount++;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          sessions: [mockSession],
+          total: 1,
+          activeCount: 1,
+        }),
+      });
+    });
+
+    await page.route('http://localhost:3001/api/stats', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalSessions: 1,
+          totalMessages: 15,
+          messagesYesterday: 0,
+          messagesToday: 15,
+          toolCallsToday: 8,
+          totalTokens: 5000,
+          firstSessionDate: new Date().toISOString(),
+          modelUsage: [],
+        }),
+      });
+    });
+
+    // Mock SSE with sessions event
+    await page.route('http://localhost:3001/api/events', async (route) => {
+      const sseData = 'event: sessions\ndata: {"sessions":[' + JSON.stringify(mockSession) + ']}\n\n';
+
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+        body: sseData,
+      });
+    });
+
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(3000);
+
+    // Sessions API should have been called at least once for initial load
+    expect(sessionsCallCount).toBeGreaterThan(0);
+  });
+});

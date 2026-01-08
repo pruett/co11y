@@ -33,6 +33,7 @@ export const SessionCard = memo(function SessionCard({ session, isSelected = fal
         isSelected && "ring-2 ring-primary"
       )}
       onClick={handleClick}
+      data-testid="session-card"
     >
       <CardHeader>
         <div className="flex items-start justify-between gap-4">

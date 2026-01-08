@@ -42,7 +42,7 @@ export default function SessionDetail() {
       <div className="p-6">
         <div className="mb-6">
           <Link to="/">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Back to dashboard">
               ← Back to Dashboard
             </Button>
           </Link>
@@ -60,7 +60,7 @@ export default function SessionDetail() {
       <div className="p-6">
         <div className="mb-6">
           <Link to="/">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Back to dashboard">
               ← Back to Dashboard
             </Button>
           </Link>
@@ -84,7 +84,7 @@ export default function SessionDetail() {
       {/* Header with back navigation */}
       <div className="mb-6">
         <Link to="/">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" aria-label="Back to dashboard">
             ← Back to Dashboard
           </Button>
         </Link>

@@ -1,0 +1,136 @@
+import { test, expect } from '@playwright/test';
+import { mockSessionDetail, mockSubagents, mockTranscript } from './fixtures/mock-data';
+
+test.describe('Session Detail', () => {
+  test.beforeEach(async ({ page }) => {
+    const sessionId = '1c5be2b5-7887-48c0-8f2a-0e55031f852b';
+
+    // Mock session detail API
+    await page.route(`http://localhost:3001/api/sessions/${sessionId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockSessionDetail),
+      });
+    });
+
+    // Mock session transcript API
+    await page.route(`http://localhost:3001/api/sessions/${sessionId}/transcript*`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          transcript: mockTranscript,
+          total: mockTranscript.length,
+          limit: 50,
+          offset: 0,
+        }),
+      });
+    });
+
+    // Mock subagents API
+    await page.route(`http://localhost:3001/api/sessions/${sessionId}/subagents`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          subagents: mockSubagents,
+        }),
+      });
+    });
+
+    // Mock SSE endpoint
+    await page.route('http://localhost:3001/api/events', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        body: '',
+      });
+    });
+
+    // Navigate after routes are set up
+    await page.goto(`/session/${sessionId}`, { waitUntil: 'networkidle' });
+  });
+
+  test('should display session header with info', async ({ page }) => {
+    // Wait for session to load with longer timeout
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Check session info is displayed - use more specific selectors
+    await expect(page.locator('h1').filter({ hasText: '/Users/test/code/project' })).toBeVisible({ timeout: 30000 });
+  });
+
+  test('should display overview tab with metrics', async ({ page }) => {
+    // Wait for content to load with longer timeout
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Overview tab should be active by default
+    await expect(page.locator('[aria-label="Overview"]').getByText('Messages')).toBeVisible({ timeout: 30000 });
+  });
+
+  test('should switch between tabs', async ({ page }) => {
+    // Wait for tabs to load with longer timeout
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Click on Transcript tab
+    await page.click('button:has-text("Transcript")');
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('Help me write a function to parse JSON')).toBeVisible({ timeout: 30000 });
+
+    // Click on Tools tab
+    await page.click('button:has-text("Tools")');
+    await page.waitForTimeout(1000);
+
+    // Click on Subagents tab
+    await page.click('button:has-text("Subagents")');
+    await page.waitForTimeout(1000);
+    await expect(page.getByText('a0c831a').first()).toBeVisible({ timeout: 30000 });
+  });
+
+  test('should display subagents in subagents tab', async ({ page }) => {
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Click Subagents tab
+    await page.click('button:has-text("Subagents")');
+    await page.waitForTimeout(1000);
+
+    // Check both subagents are displayed
+    await expect(page.getByText('a0c831a').first()).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText('b1d942b').first()).toBeVisible();
+    await expect(page.getByText('Search for related files in the codebase')).toBeVisible();
+    await expect(page.getByText('Run tests and verify results')).toBeVisible();
+  });
+
+  test('should navigate back to dashboard', async ({ page }) => {
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Click back button
+    await page.click('[aria-label="Back to dashboard"]');
+
+    // Should navigate back to dashboard
+    await expect(page).toHaveURL('/', { timeout: 10000 });
+  });
+
+  test('should display transcript messages', async ({ page }) => {
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Click Transcript tab
+    await page.click('button:has-text("Transcript")');
+    await page.waitForTimeout(1000);
+
+    // Check user message is displayed
+    await expect(page.getByText('Help me write a function to parse JSON')).toBeVisible({ timeout: 30000 });
+
+    // Check assistant response is displayed
+    await expect(page.getByText("I'll help you write a JSON parser function.")).toBeVisible();
+  });
+});

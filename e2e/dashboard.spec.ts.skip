@@ -1,0 +1,126 @@
+import { test, expect } from '@playwright/test';
+import { mockSession, mockIdleSession } from './fixtures/mock-data';
+
+test.describe('Dashboard', () => {
+  test.beforeEach(async ({ page }) => {
+    // Intercept and mock the API responses before navigation
+    await page.route('http://localhost:3001/api/sessions**', async (route) => {
+      const url = new URL(route.request().url());
+      const active = url.searchParams.get('active');
+
+      const sessions = active === 'true'
+        ? [mockSession]
+        : [mockSession, mockIdleSession];
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          sessions,
+          total: sessions.length,
+          activeCount: 1,
+        }),
+      });
+    });
+
+    await page.route('http://localhost:3001/api/stats**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          totalSessions: 10,
+          totalMessages: 150,
+          messagesYesterday: 20,
+          messagesToday: 15,
+          toolCallsToday: 8,
+          totalTokens: 50000,
+          firstSessionDate: new Date(Date.now() - 86400000 * 7).toISOString(),
+          modelUsage: [
+            {
+              model: 'Sonnet 4.5',
+              totalTokens: 50000,
+              inputTokens: 30000,
+              outputTokens: 15000,
+              cacheReadInputTokens: 5000,
+              cacheCreationInputTokens: 0,
+            },
+          ],
+        }),
+      });
+    });
+
+    // Mock SSE endpoint - respond with OK but don't establish SSE
+    await page.route('http://localhost:3001/api/events**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        body: '',
+      });
+    });
+
+    // Navigate after routes are set up
+    await page.goto('/', { waitUntil: 'networkidle' });
+  });
+
+  test('should load and display sessions', async ({ page }) => {
+    // Wait for sessions to load with longer timeout
+    await page.waitForSelector('[data-testid="session-card"]', { timeout: 30000 });
+
+    // Check that sessions are displayed
+    const sessionCards = page.locator('[data-testid="session-card"]');
+    await expect(sessionCards).toHaveCount(2);
+
+    // Check that at least one project name is shown
+    await expect(page.locator('text=project').first()).toBeVisible();
+  });
+
+  test('should display summary statistics', async ({ page }) => {
+    // Wait for page content to load with longer timeout
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Check summary stats are displayed (at least one should be visible)
+    const currentSessions = page.locator('text=Current Sessions').first();
+    await expect(currentSessions).toBeVisible({ timeout: 30000 });
+  });
+
+  test('should filter active sessions only', async ({ page }) => {
+    // Wait for initial load
+    await page.waitForSelector('[data-testid="session-card"]', { timeout: 30000 });
+
+    // Initially should show 2 sessions
+    const sessionCards = page.locator('[data-testid="session-card"]');
+    await expect(sessionCards).toHaveCount(2);
+
+    // Click "Active Only" button
+    await page.click('text=Active Only');
+
+    // Wait a bit for state to update
+    await page.waitForTimeout(1000);
+
+    // Should now show only 1 session
+    await expect(sessionCards).toHaveCount(1);
+    await expect(page.locator('text=project').first()).toBeVisible();
+  });
+
+  test('should navigate to session detail on click', async ({ page }) => {
+    // Wait for sessions to load
+    await page.waitForSelector('[data-testid="session-card"]', { timeout: 30000 });
+
+    // Click on first session
+    await page.click('[data-testid="session-card"]', { timeout: 5000 });
+
+    // Should navigate to session detail page
+    await expect(page).toHaveURL(/\/session\/.+/, { timeout: 10000 });
+  });
+
+  test('should display stats overview', async ({ page }) => {
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Check stats cards are visible (at least one)
+    const totalSessions = page.locator('text=Total Sessions').first();
+    await expect(totalSessions).toBeVisible({ timeout: 30000 });
+  });
+});
