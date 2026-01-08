@@ -1,0 +1,449 @@
+[
+  {
+    "id": "01",
+    "title": "Initialize monorepo with bun workspaces",
+    "acceptanceCriteria": [
+      "bun workspace configured with packages/frontend, packages/backend, packages/shared",
+      "Root package.json with workspace scripts (dev, build, typecheck)",
+      "TypeScript configured at root level with project references",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use bun workspaces for monorepo structure"
+  },
+  {
+    "id": "02",
+    "title": "Setup React + Vite frontend with TailwindCSS",
+    "acceptanceCriteria": [
+      "Vite project created in packages/frontend",
+      "React 19 with TypeScript configured",
+      "TailwindCSS v4 installed and configured",
+      "Dev server starts on port 5173",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use Vite 6.x, React 19, TailwindCSS v4"
+  },
+  {
+    "id": "ADD-02",
+    "title": "Use bun instead of bun and use bun workspaces for monorepo",
+    "acceptanceCriteria": [
+      "Replace bun workspace with bun workspaces (docs: https://bun.com/docs/pm/workspaces)",
+      "Replace all package.json script with bun script invocations"
+    ],
+    "passes": true,
+    "additionalNotes": "HIGH PRIORITY: Use bun instead of bun, using bun workspaces for monorepo structure"
+  },
+  {
+    "id": "03",
+    "title": "Setup shadcn/ui components foundation",
+    "acceptanceCriteria": [
+      "shadcn/ui initialized with components.json",
+      "Base components installed: button, card, badge, separator, tabs",
+      "utils.ts with cn() helper function",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use 'new-york' style, zinc base color"
+  },
+  {
+    "id": "04",
+    "title": "Setup Hono.js backend server",
+    "acceptanceCriteria": [
+      "Hono.js server in packages/backend",
+      "TypeScript configured for Node.js target",
+      "Dev server with hot reload (tsx watch)",
+      "GET /api/health returns { status: 'ok' }",
+      "CORS middleware configured for localhost:5173",
+      "Server starts on port 3001",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use @hono/node-server and tsx for development"
+  },
+  {
+    "id": "05",
+    "title": "Create shared TypeScript types package",
+    "acceptanceCriteria": [
+      "packages/shared with exported types",
+      "TranscriptRecord interface matching JSONL schema",
+      "Session, Subagent, ToolCall interfaces defined",
+      "HookEvent types for webhook payloads",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Key types: TranscriptRecord, Session, Subagent, HookEvent"
+  },
+  {
+    "id": "06",
+    "title": "Implement JSONL file parser utility",
+    "acceptanceCriteria": [
+      "parseJsonlFile() reads and parses .jsonl files",
+      "Handles malformed lines gracefully (skip with warning)",
+      "Returns array of TranscriptRecord objects",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Place in packages/backend/src/lib/jsonl-parser.ts"
+  },
+  {
+    "id": "07",
+    "title": "Implement Claude data directory scanner",
+    "acceptanceCriteria": [
+      "scanClaudeProjects() discovers all project directories in ~/.claude/projects/",
+      "Returns project paths with decoded names",
+      "Handles permission errors gracefully",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Decode dash-separated paths: -Users-name-code -> /Users/name/code"
+  },
+  {
+    "id": "08",
+    "title": "Implement session discovery service",
+    "acceptanceCriteria": [
+      "discoverSessions() finds all main session files (UUID.jsonl)",
+      "discoverSubagents() finds all agent-*.jsonl files",
+      "Associates subagents with parent sessions via sessionId",
+      "Returns Session objects with metadata",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Main sessions: UUID filenames. Subagents: agent-{shortId}.jsonl"
+  },
+  {
+    "id": "09",
+    "title": "Implement session activity analyzer",
+    "acceptanceCriteria": [
+      "analyzeSession() extracts metrics from transcript",
+      "Metrics: messageCount, toolCallCount, lastActivityTime, model, cwd",
+      "Identifies active vs idle sessions (5 min threshold)",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use last record timestamp vs current time for activity status"
+  },
+  {
+    "id": "10",
+    "title": "Create sessions API endpoint",
+    "acceptanceCriteria": [
+      "GET /api/sessions returns list of all sessions",
+      "Response: id, project, status, lastActivity, messageCount, subagentCount",
+      "Query param ?active=true filters active only",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Main endpoint for dashboard overview"
+  },
+  {
+    "id": "11",
+    "title": "Create session detail API endpoint",
+    "acceptanceCriteria": [
+      "GET /api/sessions/:id returns full session details",
+      "GET /api/sessions/:id/transcript returns paginated transcript",
+      "Supports ?limit=50&offset=0 query params",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Paginate transcript for performance"
+  },
+  {
+    "id": "12",
+    "title": "Create subagent API endpoint",
+    "acceptanceCriteria": [
+      "GET /api/sessions/:sessionId/subagents returns subagents",
+      "Includes: agentId, status, task description, timestamps",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Extract task from first user message in subagent transcript"
+  },
+  {
+    "id": "13",
+    "title": "Implement webhook receiver for Claude hooks",
+    "acceptanceCriteria": [
+      "POST /api/hooks/event receives hook payloads",
+      "Validates incoming hook event structure",
+      "Stores events in memory for SSE broadcast",
+      "Returns 200 OK on valid events",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Events: SessionStart, SessionEnd, PreToolUse, PostToolUse"
+  },
+  {
+    "id": "14",
+    "title": "Implement Server-Sent Events for real-time updates",
+    "acceptanceCriteria": [
+      "GET /api/events establishes SSE connection",
+      "Broadcasts hook events to connected clients",
+      "Periodic session updates (every 10s)",
+      "Handles client disconnection gracefully",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Event types: 'hook', 'sessions', 'heartbeat'"
+  },
+  {
+    "id": "15",
+    "title": "Create Claude hooks configuration generator",
+    "acceptanceCriteria": [
+      "GET /api/hooks/config returns hook configuration JSON",
+      "Hooks POST to dashboard webhook endpoint",
+      "Copy-pasteable into ~/.claude/settings.json",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Generate configs for SessionStart/End, PreToolUse/PostToolUse"
+  },
+  {
+    "id": "16",
+    "title": "Create React app shell with routing",
+    "acceptanceCriteria": [
+      "React Router with routes: /, /session/:id",
+      "App shell with header and navigation",
+      "Dark theme by default",
+      "Responsive layout",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use react-router-dom v7"
+  },
+  {
+    "id": "17",
+    "title": "Implement API client with React Query",
+    "acceptanceCriteria": [
+      "TanStack Query configured",
+      "API client functions for all endpoints",
+      "Type-safe responses using shared types",
+      "10-second polling interval",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use @tanstack/react-query with refetchInterval: 10000"
+  },
+  {
+    "id": "18",
+    "title": "Implement SSE client hook",
+    "acceptanceCriteria": [
+      "useEventSource() hook connects to /api/events",
+      "Auto-reconnects on disconnect",
+      "Updates React Query cache on events",
+      "Exposes connection status",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use EventSource API, invalidate queries on events"
+  },
+  {
+    "id": "19",
+    "title": "Create SessionCard component",
+    "acceptanceCriteria": [
+      "Displays: project name, status, last activity, subagent count",
+      "Activity indicator (green=active, gray=idle)",
+      "Click navigates to session detail",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use shadcn Card, format timestamps relative"
+  },
+  {
+    "id": "20",
+    "title": "Create SubagentBadge component",
+    "acceptanceCriteria": [
+      "Shows: agentId, current tool, status",
+      "Color-coded (running=blue, completed=green, error=red)",
+      "Animated pulse for active subagents",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use shadcn Badge component"
+  },
+  {
+    "id": "21",
+    "title": "Create Dashboard overview page",
+    "acceptanceCriteria": [
+      "Sessions displayed in card grid",
+      "Summary stats: total sessions, active count, total subagents",
+      "Filter: show all / active only",
+      "Auto-refreshes via polling + SSE",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Sort by last activity (most recent first)"
+  },
+  {
+    "id": "22",
+    "title": "Create ToolCallTimeline component",
+    "acceptanceCriteria": [
+      "Vertical timeline of tool executions",
+      "Shows: tool name, timestamp, status",
+      "Expandable for tool input/output",
+      "Color-coded by tool type",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Match tool_use and tool_result by tool_use_id"
+  },
+  {
+    "id": "23",
+    "title": "Create TranscriptViewer component",
+    "acceptanceCriteria": [
+      "Displays user/assistant messages",
+      "Syntax highlighting for code blocks",
+      "Collapsible tool calls inline",
+      "Virtual scrolling for performance",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use @tanstack/react-virtual"
+  },
+  {
+    "id": "24",
+    "title": "Create SessionDetail page",
+    "acceptanceCriteria": [
+      "Header with session info and back navigation",
+      "Tabs: Overview, Transcript, Tools, Subagents",
+      "Real-time updates for active sessions",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use shadcn Tabs, lazy-load tab content"
+  },
+  {
+    "id": "25",
+    "title": "Create SubagentList component",
+    "acceptanceCriteria": [
+      "Lists subagents: agentId, task, status, duration",
+      "Click expands to show transcript",
+      "Spinner for active subagents",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Support nested subagents with tree structure"
+  },
+  {
+    "id": "26",
+    "title": "Create StatsOverview component",
+    "acceptanceCriteria": [
+      "Displays stats from stats-cache.json",
+      "Cards: total sessions, messages today, tokens used",
+      "Model usage breakdown",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Add GET /api/stats endpoint"
+  },
+  {
+    "id": "27",
+    "title": "Create ActivityIndicator component",
+    "acceptanceCriteria": [
+      "Shows real-time activity status in header",
+      "Animated pulse on events",
+      "Connection status (SSE connected/disconnected)",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Green pulse on hook events"
+  },
+  {
+    "id": "28",
+    "title": "Implement error boundaries and loading states",
+    "acceptanceCriteria": [
+      "ErrorBoundary wraps main content",
+      "Loading skeletons for async content",
+      "Toast notifications for errors",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use shadcn Skeleton and Toast"
+  },
+  {
+    "id": "29",
+    "title": "Create hooks setup wizard",
+    "acceptanceCriteria": [
+      "Modal with hook configuration instructions",
+      "Displays generated hook config JSON",
+      "Copy-to-clipboard button",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Show if no hook events received"
+  },
+  {
+    "id": "30",
+    "title": "Add development scripts and documentation",
+    "acceptanceCriteria": [
+      "README.md with setup instructions",
+      "bun dev starts frontend and backend concurrently",
+      "bun build creates production builds",
+      ".env.example with configuration",
+      "bun typecheck passes"
+    ],
+    "passes": true,
+    "additionalNotes": "Use concurrently for dev"
+  },
+  {
+    "id": "31",
+    "title": "Implement file watcher for instant updates",
+    "acceptanceCriteria": [
+      "Backend watches ~/.claude/projects/ for changes",
+      "Modified .jsonl files trigger session refresh",
+      "Debounced updates (500ms)",
+      "Broadcasts via SSE",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use chokidar for file watching"
+  },
+  {
+    "id": "32",
+    "title": "Add keyboard shortcuts",
+    "acceptanceCriteria": [
+      "j/k for next/prev session",
+      "Enter opens session detail",
+      "Escape returns to dashboard",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use react-hotkeys-hook"
+  },
+  {
+    "id": "33",
+    "title": "Add theme toggle",
+    "acceptanceCriteria": [
+      "Light/dark toggle in header",
+      "Respects system preference",
+      "Persisted in localStorage",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use Tailwind dark mode class strategy"
+  },
+  {
+    "id": "34",
+    "title": "Performance optimization",
+    "acceptanceCriteria": [
+      "Route-based code splitting",
+      "Lazy load heavy components",
+      "Memoize expensive computations",
+      "Initial JS bundle < 200KB",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use React.lazy() and Suspense"
+  },
+  {
+    "id": "35",
+    "title": "End-to-end integration testing",
+    "acceptanceCriteria": [
+      "E2E tests for main user flows",
+      "Dashboard loads and displays sessions",
+      "Session detail navigation works",
+      "SSE connection works",
+      "bun test:e2e passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use Playwright with mock data fixtures"
+  }
+]
