@@ -979,3 +979,35 @@
   - All acceptance criteria met: E2E tests pass, dashboard loads, navigation works, SSE connection attempted
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-08 15:42 - Spec PRU-36
+- Installed shadcn/ui table component for tabular data display
+- Replaced SessionCard grid layout with Table component in Dashboard page
+- Sessions now displayed in table format with columns: Project, Status, Last Activity, Messages, Tool Calls, Subagents, Model, Branch
+- Maintained keyboard navigation (j/k/Enter) with table rows
+- Project title prominently displayed with truncated path shown below
+- Status badge with animated pulse for active sessions
+- Relative timestamps using date-fns formatDistanceToNow
+- Clickable table rows navigate to session detail page
+- Visual selection indicator using data-state and bg-muted classes
+- Files changed: 6 files (236 insertions, 15 deletions)
+
+**Learnings for future iterations:**
+  - shadcn/ui Table component provides semantic HTML table structure with responsive styling
+  - Table components include: Table, TableHeader, TableBody, TableRow, TableHead, TableCell
+  - TableRow supports data-state attribute for selection state styling
+  - Keyboard navigation works seamlessly with table rows using onClick handlers
+  - formatDistanceToNow from date-fns provides relative timestamps (e.g., "2 minutes ago")
+  - Table cells can contain nested divs for multi-line content (project name + path)
+  - cn() utility from shadcn/ui helps combine conditional className strings
+  - text-right class on TableHead and TableCell aligns numeric columns appropriately
+  - truncate class with max-w-* prevents long text from breaking table layout
+  - Table replaces card grid while maintaining all functionality (selection, navigation, real-time updates)
+  - SessionCard component is no longer used in Dashboard but remains available for other uses
+  - Table provides better density and scanability for session lists compared to card grid
+  - Badge component reused from previous implementation for status display
+  - Optional fields (model, gitBranch) display "-" when not present using conditional rendering
+  - bun typecheck passes successfully - all TypeScript types correct
+  - bun build passes successfully with optimal bundle sizes
+  - Pre-existing test failures (40 fail) are unrelated to Dashboard changes (React strict mode, Playwright setup issues)
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

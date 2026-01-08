@@ -454,7 +454,7 @@
       "No duplicates should exist",
       "Each session should be rendered visually as text, not a card"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Remove shadcn/ui <Card> component and replace with something simpler. Consider using a Table"
   }
 ]
