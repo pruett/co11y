@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SessionCard } from '@/components/SessionCard';
-import { StatsOverview } from '@/components/StatsOverview';
-import { HooksSetupWizard } from '@/components/HooksSetupWizard';
 import { useSessions } from '@/hooks/useApi';
 import { useEventSource } from '@/hooks/useEventSource';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
 import { toast } from 'sonner';
 import { Settings } from 'lucide-react';
+
+const StatsOverview = lazy(() =>
+  import('@/components/StatsOverview').then(module => ({ default: module.StatsOverview }))
+);
+const HooksSetupWizard = lazy(() =>
+  import('@/components/HooksSetupWizard').then(module => ({ default: module.HooksSetupWizard }))
+);
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -110,7 +116,10 @@ export default function Dashboard() {
 
   const total = data?.total || 0;
   const activeCount = data?.activeCount || 0;
-  const totalSubagents = sessions.reduce((sum, session) => sum + session.subagentCount, 0);
+  const totalSubagents = useMemo(
+    () => sessions.reduce((sum, session) => sum + session.subagentCount, 0),
+    [sessions]
+  );
 
   return (
     <div className="p-6">
@@ -123,7 +132,18 @@ export default function Dashboard() {
 
       {/* Stats Overview */}
       <div className="mb-6">
-        <StatsOverview />
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+            </div>
+          }
+        >
+          <StatsOverview />
+        </Suspense>
       </div>
 
       {/* Session Summary Stats */}
@@ -213,7 +233,9 @@ export default function Dashboard() {
       )}
 
       {/* Hooks Setup Wizard */}
-      <HooksSetupWizard open={showWizard} onOpenChange={setShowWizard} />
+      <Suspense fallback={null}>
+        <HooksSetupWizard open={showWizard} onOpenChange={setShowWizard} />
+      </Suspense>
     </div>
   );
 }

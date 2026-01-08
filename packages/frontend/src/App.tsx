@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/lib/query-client'
@@ -5,8 +6,11 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { Toaster } from '@/components/ui/sonner'
 import Layout from '@/components/Layout'
-import Dashboard from '@/pages/Dashboard'
-import SessionDetail from '@/pages/SessionDetail'
+import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton'
+import { SessionDetailSkeleton } from '@/components/skeletons/SessionDetailSkeleton'
+
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
+const SessionDetail = lazy(() => import('@/pages/SessionDetail'))
 
 function App() {
   return (
@@ -16,8 +20,22 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="session/:id" element={<SessionDetail />} />
+                <Route
+                  index
+                  element={
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <Dashboard />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="session/:id"
+                  element={
+                    <Suspense fallback={<SessionDetailSkeleton />}>
+                      <SessionDetail />
+                    </Suspense>
+                  }
+                />
               </Route>
             </Routes>
           </BrowserRouter>

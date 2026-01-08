@@ -1,18 +1,27 @@
+import { lazy, Suspense } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useSessionDetail, useSubagents } from '@/hooks/useApi'
 import { useEventSource } from '@/hooks/useEventSource'
 import { formatDistanceToNow } from 'date-fns'
-import { ToolCallTimeline } from '@/components/ToolCallTimeline'
 import { SubagentBadge } from '@/components/SubagentBadge'
-import { SubagentList } from '@/components/SubagentList'
-import { TranscriptViewer } from '@/components/TranscriptViewer'
 import { SessionDetailSkeleton } from '@/components/skeletons/SessionDetailSkeleton'
 import { toast } from 'sonner'
+
+const ToolCallTimeline = lazy(() =>
+  import('@/components/ToolCallTimeline').then(module => ({ default: module.ToolCallTimeline }))
+)
+const SubagentList = lazy(() =>
+  import('@/components/SubagentList').then(module => ({ default: module.SubagentList }))
+)
+const TranscriptViewer = lazy(() =>
+  import('@/components/TranscriptViewer').then(module => ({ default: module.TranscriptViewer }))
+)
 
 export default function SessionDetail() {
   const navigate = useNavigate()
@@ -215,7 +224,9 @@ export default function SessionDetail() {
               <CardTitle>Conversation Transcript</CardTitle>
             </CardHeader>
             <CardContent>
-              <TranscriptViewer transcript={session.transcript} />
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <TranscriptViewer transcript={session.transcript} />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>
@@ -227,7 +238,9 @@ export default function SessionDetail() {
               <CardTitle>Tool Call Timeline</CardTitle>
             </CardHeader>
             <CardContent>
-              <ToolCallTimeline transcript={session.transcript} />
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <ToolCallTimeline transcript={session.transcript} />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>
@@ -239,7 +252,9 @@ export default function SessionDetail() {
               <CardTitle>Subagents</CardTitle>
             </CardHeader>
             <CardContent>
-              <SubagentList subagents={subagents} />
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <SubagentList subagents={subagents} />
+              </Suspense>
             </CardContent>
           </Card>
         </TabsContent>

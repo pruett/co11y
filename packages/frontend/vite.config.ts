@@ -14,4 +14,31 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Split react-syntax-highlighter into separate chunk (only loaded with TranscriptViewer)
+          if (id.includes('react-syntax-highlighter') || id.includes('refractor')) {
+            return 'vendor-syntax';
+          }
+          // Split React/Router into vendor-react
+          if (id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react-router') ||
+              id.includes('node_modules/scheduler')) {
+            return 'vendor-react';
+          }
+          // Split TanStack libraries
+          if (id.includes('@tanstack')) {
+            return 'vendor-query';
+          }
+          // All other node_modules go to vendor
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
 })

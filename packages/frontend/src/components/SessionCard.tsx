@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@co11y/shared';
@@ -10,7 +11,7 @@ interface SessionCardProps {
   isSelected?: boolean;
 }
 
-export function SessionCard({ session, isSelected = false }: SessionCardProps) {
+export const SessionCard = memo(function SessionCard({ session, isSelected = false }: SessionCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -93,4 +94,4 @@ export function SessionCard({ session, isSelected = false }: SessionCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
