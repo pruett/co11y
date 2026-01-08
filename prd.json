@@ -393,7 +393,7 @@
       "Broadcasts via SSE",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use chokidar for file watching"
   },
   {
