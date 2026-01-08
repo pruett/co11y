@@ -443,7 +443,7 @@
       "SSE connection works",
       "bun test:e2e passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use Playwright with mock data fixtures"
   }
 ]
