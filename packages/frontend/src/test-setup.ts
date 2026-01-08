@@ -14,3 +14,5 @@ globalThis.navigator = window.navigator;
 globalThis.HTMLElement = window.HTMLElement;
 // @ts-ignore
 globalThis.Element = window.Element;
+// @ts-ignore
+globalThis.localStorage = window.localStorage;

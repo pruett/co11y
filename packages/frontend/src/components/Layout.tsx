@@ -1,6 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
 import { Separator } from '@/components/ui/separator'
 import { ActivityIndicator } from './ActivityIndicator'
+import { ThemeToggle } from './ThemeToggle'
 
 export default function Layout() {
   return (
@@ -21,6 +22,7 @@ export default function Layout() {
               >
                 Dashboard
               </Link>
+              <ThemeToggle />
             </nav>
           </div>
         </div>
