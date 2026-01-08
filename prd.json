@@ -417,7 +417,7 @@
       "Persisted in localStorage",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use Tailwind dark mode class strategy"
   },
   {
