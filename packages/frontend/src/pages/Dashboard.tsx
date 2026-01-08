@@ -1,15 +1,18 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { SessionCard } from '@/components/SessionCard';
+import { formatDistanceToNow } from 'date-fns';
 import { useSessions } from '@/hooks/useApi';
 import { useEventSource } from '@/hooks/useEventSource';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Settings } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const StatsOverview = lazy(() =>
   import('@/components/StatsOverview').then(module => ({ default: module.StatsOverview }))
@@ -30,6 +33,10 @@ export default function Dashboard() {
   const { lastEvent } = useEventSource();
 
   const sessions = data?.sessions || [];
+  const totalSubagents = useMemo(
+    () => sessions.reduce((sum, session) => sum + session.subagentCount, 0),
+    [sessions]
+  );
 
   // Keyboard shortcuts: j/k for navigation, Enter to open
   useHotkeys('j', () => {
@@ -116,10 +123,6 @@ export default function Dashboard() {
 
   const total = data?.total || 0;
   const activeCount = data?.activeCount || 0;
-  const totalSubagents = useMemo(
-    () => sessions.reduce((sum, session) => sum + session.subagentCount, 0),
-    [sessions]
-  );
 
   return (
     <div className="p-6">
@@ -209,7 +212,7 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Sessions Grid */}
+      {/* Sessions Table */}
       {sessions.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
@@ -221,14 +224,76 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sessions.map((session, index) => (
-            <SessionCard
-              key={session.id}
-              session={session}
-              isSelected={index === selectedIndex}
-            />
-          ))}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Project</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last Activity</TableHead>
+                <TableHead className="text-right">Messages</TableHead>
+                <TableHead className="text-right">Tool Calls</TableHead>
+                <TableHead className="text-right">Subagents</TableHead>
+                <TableHead>Model</TableHead>
+                <TableHead>Branch</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sessions.map((session, index) => (
+                <TableRow
+                  key={session.id}
+                  data-state={index === selectedIndex ? 'selected' : undefined}
+                  className={cn(
+                    "cursor-pointer",
+                    index === selectedIndex && "bg-muted"
+                  )}
+                  onClick={() => navigate(`/session/${session.id}`)}
+                >
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{session.project}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[300px]">
+                        {session.projectPath}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={session.status === 'active' ? 'default' : 'secondary'}
+                      className={cn(
+                        session.status === 'active' &&
+                          'bg-green-500 text-white animate-pulse'
+                      )}
+                    >
+                      {session.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {formatDistanceToNow(new Date(session.lastActivity), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell className="text-right">{session.messageCount}</TableCell>
+                  <TableCell className="text-right">{session.toolCallCount}</TableCell>
+                  <TableCell className="text-right">{session.subagentCount}</TableCell>
+                  <TableCell>
+                    {session.model ? (
+                      <span className="font-mono text-xs">{session.model}</span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {session.gitBranch ? (
+                      <span className="font-mono text-xs truncate max-w-[150px] block">
+                        {session.gitBranch}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 

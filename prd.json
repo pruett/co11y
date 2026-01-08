@@ -445,5 +445,16 @@
     ],
     "passes": true,
     "additionalNotes": "Use Playwright with mock data fixtures"
+  },
+  {
+    "id": "PRU-36",
+    "title": "Show sessions in list not cards",
+    "acceptanceCriteria": [
+      "User should see a list of sessions represented by title",
+      "No duplicates should exist",
+      "Each session should be rendered visually as text, not a card"
+    ],
+    "passes": false,
+    "additionalNotes": "Remove shadcn/ui <Card> component and replace with something simpler. Consider using a Table"
   }
 ]
