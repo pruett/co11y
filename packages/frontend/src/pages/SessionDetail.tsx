@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -14,12 +15,18 @@ import { SessionDetailSkeleton } from '@/components/skeletons/SessionDetailSkele
 import { toast } from 'sonner'
 
 export default function SessionDetail() {
+  const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const { data: session, isLoading, error } = useSessionDetail(id || '')
   const { data: subagentsData } = useSubagents(id || '')
 
   // Connect to SSE for real-time updates
   useEventSource()
+
+  // Keyboard shortcut: Escape to return to dashboard
+  useHotkeys('escape', () => {
+    navigate('/')
+  }, [navigate])
 
   if (isLoading) {
     return (

@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 
 interface SessionCardProps {
   session: Session;
+  isSelected?: boolean;
 }
 
-export function SessionCard({ session }: SessionCardProps) {
+export function SessionCard({ session, isSelected = false }: SessionCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -26,7 +27,10 @@ export function SessionCard({ session }: SessionCardProps) {
 
   return (
     <Card
-      className="cursor-pointer transition-colors hover:bg-accent/50"
+      className={cn(
+        "cursor-pointer transition-all hover:bg-accent/50",
+        isSelected && "ring-2 ring-primary"
+      )}
       onClick={handleClick}
     >
       <CardHeader>

@@ -6,6 +6,7 @@ import type { SessionDetail as SessionDetailType, SubagentsResponse } from '@co1
 
 // Mock the hooks
 const mockUseParams = mock(() => ({ id: 'test-session-id' }))
+const mockUseNavigate = mock(() => () => {})
 const mockUseSessionDetail = mock(() => ({
   data: null,
   isLoading: true,
@@ -20,14 +21,21 @@ const mockUseEventSource = mock(() => ({
   status: 'connected',
   lastEvent: null,
 }))
+const mockUseHotkeys = mock(() => {})
 
 // Mock react-router-dom
 mock.module('react-router-dom', () => ({
   useParams: mockUseParams,
+  useNavigate: mockUseNavigate,
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
   BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
+// Mock react-hotkeys-hook
+mock.module('react-hotkeys-hook', () => ({
+  useHotkeys: mockUseHotkeys,
 }))
 
 // Mock the API hooks
@@ -307,5 +315,32 @@ describe('SessionDetail', () => {
 
     // Should show error state
     expect(container.textContent).toContain('Error loading session details')
+  })
+
+  it('should register Escape key hotkey for navigation to dashboard', () => {
+    const mockSession: SessionDetailType = {
+      id: 'test-session-id',
+      project: 'Test Project',
+      projectPath: '/Users/test/project',
+      status: 'active',
+      messageCount: 10,
+      toolCallCount: 5,
+      subagentCount: 0,
+      transcript: [],
+    }
+
+    mockUseSessionDetail.mockReturnValue({
+      data: mockSession,
+      isLoading: false,
+      error: null,
+    })
+
+    renderWithRouter(<SessionDetail />)
+
+    // Verify useHotkeys was called with 'escape' key
+    expect(mockUseHotkeys).toHaveBeenCalled()
+    const calls = mockUseHotkeys.mock.calls
+    const escapeCall = calls.find((call: any) => call[0] === 'escape')
+    expect(escapeCall).toBeDefined()
   })
 })

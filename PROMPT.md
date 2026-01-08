@@ -9,9 +9,7 @@ You are an autonomous coding agent working on co11y, a web dashboard for monitor
 
 4. When implementing the chosen task, be sure to consider the acceptance criteria, writing tests BEFORE writing the functional code where appropriate
 
-4a. Update CLAUDE.md if you discover reusable patterns
-
-5. Run `pnpm typecheck` and `pnpm test` ENSURING ALL TESTS PASS BEFORE PROCEEDING ANY FURTHER
+5. Run `bun typecheck` and `bun test` and `bun build` ENSURING ALL TESTS PASS BEFORE PROCEEDING ANY FURTHER
 
 6. Stage all files, commit the changes, and push to the remote origin:
 
@@ -39,7 +37,7 @@ APPEND to @progress.txt (NEVER REPLACE, ALWAYS APPEND):
 The learnings section is critical - it helps future iterations avoid repeating mistakes and understand the codebase better.
 
 ## Quality Requirements
-- ALL commits must pass your project's quality checks (typecheck, lint, test)
+- ALL commits must pass your project's quality checks (typecheck, lint, build, test)
 - Do NOT commit broken code
 - Keep changes focused and minimal
 - Follow existing code patterns

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { SessionCard } from '@/components/SessionCard';
 import { StatsOverview } from '@/components/StatsOverview';
 import { HooksSetupWizard } from '@/components/HooksSetupWizard';
@@ -11,13 +13,41 @@ import { toast } from 'sonner';
 import { Settings } from 'lucide-react';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [hasReceivedHookEvent, setHasReceivedHookEvent] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const { data, isLoading, error } = useSessions(showActiveOnly);
 
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
+
+  const sessions = data?.sessions || [];
+
+  // Keyboard shortcuts: j/k for navigation, Enter to open
+  useHotkeys('j', () => {
+    if (sessions.length > 0) {
+      setSelectedIndex((prev) => Math.min(prev + 1, sessions.length - 1));
+    }
+  }, [sessions.length]);
+
+  useHotkeys('k', () => {
+    if (sessions.length > 0) {
+      setSelectedIndex((prev) => Math.max(prev - 1, 0));
+    }
+  }, [sessions.length]);
+
+  useHotkeys('enter', () => {
+    if (sessions.length > 0 && sessions[selectedIndex]) {
+      navigate(`/session/${sessions[selectedIndex].id}`);
+    }
+  }, [sessions, selectedIndex, navigate]);
+
+  // Reset selected index when sessions change or filter changes
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [sessions.length, showActiveOnly]);
 
   // Track if we've received any hook events
   useEffect(() => {
@@ -78,7 +108,6 @@ export default function Dashboard() {
     );
   }
 
-  const sessions = data?.sessions || [];
   const total = data?.total || 0;
   const activeCount = data?.activeCount || 0;
   const totalSubagents = sessions.reduce((sum, session) => sum + session.subagentCount, 0);
@@ -173,8 +202,12 @@ export default function Dashboard() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
+          {sessions.map((session, index) => (
+            <SessionCard
+              key={session.id}
+              session={session}
+              isSelected={index === selectedIndex}
+            />
           ))}
         </div>
       )}
