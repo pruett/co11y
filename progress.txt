@@ -1242,3 +1242,24 @@
   - bun --filter './packages/*' build passes successfully with optimized bundle sizes
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 14:01 - Spec UI-11
+- Implemented auto-expand for most recent active session on page load
+- Added useEffect that runs when sessions array or expandedSessionId changes
+- Auto-expand only triggers when expandedSessionId is null (first load or after manual collapse)
+- Sets expandedSessionId to sessions[0].id (first session in sorted array is most recent)
+- Works correctly on page refresh and navigation because useEffect re-runs with fresh session data
+- Files changed: 1 file (7 insertions)
+
+**Learnings for future iterations:**
+  - useEffect with [sessions, expandedSessionId] dependencies ensures auto-expand runs at the right time
+  - Conditional check (expandedSessionId === null) prevents re-expanding when user manually collapses
+  - sessions[0] is the most recent session because of UI-10 sorting implementation
+  - Auto-expand behavior is non-intrusive: only happens on initial load, not on every session update
+  - The effect runs after sessions array is populated, not during loading state
+  - When sessions data refreshes via SSE or polling, expandedSessionId is preserved (not null)
+  - The auto-expand creates a better UX: users immediately see transcript content without clicking
+  - Dependency array includes both sessions and expandedSessionId to handle all relevant changes
+  - bun typecheck passes successfully - all TypeScript types are correct
+  - bun --filter './packages/*' build passes successfully with optimized bundle sizes
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

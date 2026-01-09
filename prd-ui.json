@@ -125,7 +125,7 @@
       "Works correctly on page refresh and navigation",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use useEffect to set initial expandedSessionId"
   }
 ]
