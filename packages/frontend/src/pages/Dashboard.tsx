@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { formatDistanceToNow } from 'date-fns';
@@ -29,10 +29,6 @@ export default function Dashboard() {
   const { lastEvent } = useEventSource();
 
   const projects = data?.projects || [];
-  const totalSubagents = useMemo(
-    () => projects.reduce((sum, project) => sum + project.totalSubagents, 0),
-    [projects]
-  );
 
   // Keyboard shortcuts: j/k for navigation, Enter to open
   useHotkeys('j', () => {
@@ -117,10 +113,6 @@ export default function Dashboard() {
     );
   }
 
-  const totalProjects = data?.totalProjects || 0;
-  const totalSessions = data?.totalSessions || 0;
-  const activeCount = data?.activeSessionCount || 0;
-
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -128,53 +120,6 @@ export default function Dashboard() {
         <p className="text-muted-foreground">
           Monitor Claude Code sessions in real-time
         </p>
-      </div>
-
-      {/* Project Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Projects
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalProjects}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Sessions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSessions}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Sessions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">{activeCount}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Subagents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSubagents}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filter Controls */}
