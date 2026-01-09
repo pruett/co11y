@@ -1,0 +1,131 @@
+[
+  {
+    "id": "UI-01",
+    "title": "Remove StatsOverview component from Dashboard",
+    "acceptanceCriteria": [
+      "StatsOverview component removed from Dashboard.tsx",
+      "Token usage, model breakdown, daily activity charts no longer visible",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Part of Dashboard simplification - remove analytics/metadata display"
+  },
+  {
+    "id": "UI-02",
+    "title": "Remove summary stat cards from Dashboard",
+    "acceptanceCriteria": [
+      "4 summary stat cards removed (Projects, Total Sessions, Active Sessions, Active Subagents)",
+      "Dashboard layout adjusts cleanly without stat cards",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Remove the stat cards grid from top of Dashboard"
+  },
+  {
+    "id": "UI-03",
+    "title": "Remove filter toggle from Dashboard",
+    "acceptanceCriteria": [
+      "All Projects / Active Only toggle removed from Dashboard",
+      "No filter UI elements remain in Dashboard header",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Toggle no longer needed since we always show active-only"
+  },
+  {
+    "id": "UI-04",
+    "title": "Filter Dashboard to show only projects with active sessions",
+    "acceptanceCriteria": [
+      "Projects table only shows projects where activeSessionCount > 0",
+      "Empty state shown when no projects have active sessions",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Filter applied before rendering project table"
+  },
+  {
+    "id": "UI-05",
+    "title": "Remove summary stat cards from ProjectDetail page",
+    "acceptanceCriteria": [
+      "4 project summary stat cards removed from ProjectDetail.tsx",
+      "Project header/info remains but without stat cards",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Simplify ProjectDetail page layout"
+  },
+  {
+    "id": "UI-06",
+    "title": "Filter ProjectDetail to show only active sessions",
+    "acceptanceCriteria": [
+      "Only sessions with status === 'active' are displayed",
+      "No toggle to view idle sessions",
+      "Empty state shown when no active sessions exist",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Remove ability to view idle sessions entirely"
+  },
+  {
+    "id": "UI-07",
+    "title": "Replace sessions table with expandable card components",
+    "acceptanceCriteria": [
+      "Sessions displayed as expandable cards instead of table rows",
+      "Card header shows: status badge, last activity, message count, tool calls, model",
+      "Chevron icon indicates expand/collapse state",
+      "Click on card header toggles expansion",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use shadcn Card component with CardHeader for clickable area"
+  },
+  {
+    "id": "UI-08",
+    "title": "Implement accordion behavior for session cards",
+    "acceptanceCriteria": [
+      "Only one session card can be expanded at a time",
+      "Expanding a session collapses any previously expanded session",
+      "State tracked via expandedSessionId",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Accordion pattern - mutual exclusion for expanded state"
+  },
+  {
+    "id": "UI-09",
+    "title": "Integrate TranscriptViewer in expanded session cards",
+    "acceptanceCriteria": [
+      "Expanded card content shows full session transcript",
+      "Reuses existing TranscriptViewer component",
+      "Transcript fetched via useSessionDetail hook when expanded",
+      "Transcript area has max-height with overflow scroll",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Lazy-load transcript data only when session is expanded"
+  },
+  {
+    "id": "UI-10",
+    "title": "Sort sessions by lastActivity descending",
+    "acceptanceCriteria": [
+      "Sessions ordered with most recent activity first",
+      "Sort applied after filtering for active sessions",
+      "Order updates when session data refreshes",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use Date comparison on lastActivity field"
+  },
+  {
+    "id": "UI-11",
+    "title": "Auto-expand most recent active session on page load",
+    "acceptanceCriteria": [
+      "First session in sorted list is automatically expanded on mount",
+      "Auto-expand only triggers when expandedSessionId is null",
+      "Works correctly on page refresh and navigation",
+      "bun typecheck passes"
+    ],
+    "passes": false,
+    "additionalNotes": "Use useEffect to set initial expandedSessionId"
+  }
+]

@@ -92,14 +92,21 @@ export default function SessionDetail() {
 
       {/* Session Info Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold">{session.project}</h1>
-          <Badge
-            variant={session.status === 'active' ? 'default' : 'secondary'}
-            className={session.status === 'active' ? 'bg-green-500 animate-pulse' : ''}
-          >
-            {session.status}
-          </Badge>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold">{session.project}</h1>
+            <Badge
+              variant={session.status === 'active' ? 'default' : 'secondary'}
+              className={session.status === 'active' ? 'bg-green-500 animate-pulse' : ''}
+            >
+              {session.status}
+            </Badge>
+          </div>
+          <Link to={`/session/${id}/monitor`}>
+            <Button variant="default" size="sm">
+              📊 Live Monitor
+            </Button>
+          </Link>
         </div>
         <p className="text-sm text-muted-foreground font-mono">{session.projectPath}</p>
         {session.lastActivity && (

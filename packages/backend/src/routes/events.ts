@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import type { SSEEvent, HookEvent, Session } from '@co11y/shared';
+import type { SSEEvent, HookEvent, Session, Project } from '@co11y/shared';
 import { getEventStore, setBroadcastCallback } from './hooks';
 import { scanClaudeProjects } from '../lib/project-scanner';
 import { discoverSessions, discoverSubagents } from '../lib/session-discovery';
@@ -44,16 +44,30 @@ function formatSSEEvent(event: SSEEvent): string {
   return `event: ${event.type}\ndata: ${JSON.stringify(data)}\n\n`;
 }
 
-// Get all sessions for periodic updates
-async function getAllSessions(claudeDir?: string): Promise<Session[]> {
+// Get all projects for periodic updates
+async function getAllProjects(claudeDir?: string): Promise<Project[]> {
   try {
     const baseDir = claudeDir || join(homedir(), '.claude', 'projects');
-    const projects = scanClaudeProjects(baseDir);
-    const allSessions: Session[] = [];
+    const claudeProjects = scanClaudeProjects(baseDir);
+    const projectMap = new Map<string, Project>();
 
-    for (const project of projects) {
-      const sessions = discoverSessions(project.fullPath);
-      const subagentFiles = discoverSubagents(project.fullPath);
+    for (const claudeProject of claudeProjects) {
+      const sessions = discoverSessions(claudeProject.fullPath);
+      const subagentFiles = discoverSubagents(claudeProject.fullPath);
+
+      // Initialize project
+      const project: Project = {
+        id: claudeProject.encodedPath,
+        name: claudeProject.displayName,
+        fullPath: claudeProject.decodedPath,
+        sessions: [],
+        sessionCount: 0,
+        activeSessionCount: 0,
+        lastActivity: '',
+        totalMessages: 0,
+        totalToolCalls: 0,
+        totalSubagents: 0,
+      };
 
       for (const session of sessions) {
         try {
@@ -64,10 +78,10 @@ async function getAllSessions(claudeDir?: string): Promise<Session[]> {
             (sub) => sub.sessionId === session.id
           );
 
-          allSessions.push({
+          const sessionObj: Session = {
             id: session.id,
-            project: project.decodedPath,
-            projectPath: project.fullPath,
+            project: claudeProject.decodedPath,
+            projectPath: claudeProject.fullPath,
             status: analysis.status,
             lastActivity: analysis.lastActivityTime || new Date().toISOString(),
             messageCount: analysis.messageCount,
@@ -77,16 +91,45 @@ async function getAllSessions(claudeDir?: string): Promise<Session[]> {
             cwd: analysis.cwd,
             gitBranch: analysis.gitBranch,
             slug: analysis.slug,
-          });
+          };
+
+          // Add session to project
+          project.sessions.push(sessionObj);
+          project.sessionCount++;
+          if (sessionObj.status === 'active') project.activeSessionCount++;
+          project.totalMessages += sessionObj.messageCount;
+          project.totalToolCalls += sessionObj.toolCallCount;
+          project.totalSubagents += sessionObj.subagentCount;
+
+          // Update project lastActivity
+          if (!project.lastActivity || new Date(sessionObj.lastActivity) > new Date(project.lastActivity)) {
+            project.lastActivity = sessionObj.lastActivity;
+          }
         } catch (error) {
           console.error(`Error analyzing session ${session.id}:`, error);
         }
       }
+
+      // Sort sessions within project
+      project.sessions.sort((a, b) => {
+        return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
+      });
+
+      // Only add project if it has sessions
+      if (project.sessions.length > 0) {
+        projectMap.set(claudeProject.encodedPath, project);
+      }
     }
 
-    return allSessions;
+    // Convert to array and sort by lastActivity
+    const allProjects = Array.from(projectMap.values());
+    allProjects.sort((a, b) => {
+      return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime();
+    });
+
+    return allProjects;
   } catch (error) {
-    console.error('Error getting sessions:', error);
+    console.error('Error getting projects:', error);
     return [];
   }
 }
@@ -115,16 +158,16 @@ export function getEventsHandler(claudeDir?: string) {
           });
         }
 
-        // Set up periodic session updates (every 10 seconds)
-        const sessionUpdateInterval = setInterval(async () => {
+        // Set up periodic project updates (every 10 seconds)
+        const projectUpdateInterval = setInterval(async () => {
           try {
-            const sessions = await getAllSessions(claudeDir);
+            const projects = await getAllProjects(claudeDir);
             await stream.writeSSE({
-              event: 'sessions',
-              data: JSON.stringify(sessions),
+              event: 'projects',
+              data: JSON.stringify(projects),
             });
           } catch (error) {
-            console.error('Error sending session update:', error);
+            console.error('Error sending project update:', error);
           }
         }, 10000);
 
@@ -150,7 +193,7 @@ export function getEventsHandler(claudeDir?: string) {
         });
 
         // Cleanup on disconnect
-        clearInterval(sessionUpdateInterval);
+        clearInterval(projectUpdateInterval);
         clearInterval(heartbeatInterval);
       } finally {
         // Remove client from tracking
@@ -184,12 +227,12 @@ export function setupEventBroadcasting(claudeDir?: string): void {
   fileWatcher = createFileWatcher(
     watchDir,
     async (filePath) => {
-      // File changed, broadcast session update
+      // File changed, broadcast project update
       try {
-        const sessions = await getAllSessions(claudeDir);
+        const projects = await getAllProjects(claudeDir);
         broadcastEvent({
-          type: 'sessions',
-          data: sessions,
+          type: 'projects',
+          data: projects,
         });
       } catch (error) {
         console.error('Error broadcasting file change:', error);

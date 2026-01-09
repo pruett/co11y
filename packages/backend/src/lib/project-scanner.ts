@@ -1,9 +1,11 @@
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import { homedir } from 'os';
 
 export interface ClaudeProject {
   encodedPath: string;
   decodedPath: string;
+  displayName: string;
   fullPath: string;
 }
 
@@ -18,6 +20,7 @@ export interface ClaudeProject {
 export function scanClaudeProjects(projectsDir: string): ClaudeProject[] {
   try {
     const entries = readdirSync(projectsDir);
+    const home = homedir();
 
     const projects: ClaudeProject[] = [];
 
@@ -39,9 +42,17 @@ export function scanClaudeProjects(projectsDir: string): ClaudeProject[] {
           .filter((segment) => segment !== '') // Remove empty strings from leading dash
           .join('/');
 
+        const fullDecodedPath = `/${decodedPath}`;
+
+        // Strip home directory prefix for display name
+        const displayName = fullDecodedPath.startsWith(home)
+          ? fullDecodedPath.slice(home.length + 1)  // Remove "/Users/username/" prefix
+          : fullDecodedPath;
+
         projects.push({
           encodedPath: entry,
-          decodedPath: `/${decodedPath}`,
+          decodedPath: fullDecodedPath,
+          displayName,
           fullPath,
         });
       } catch (error) {

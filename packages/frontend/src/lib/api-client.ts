@@ -1,5 +1,7 @@
 import type {
   SessionsResponse,
+  ProjectsResponse,
+  ProjectDetailResponse,
   SessionDetail,
   TranscriptResponse,
   SubagentsResponse,
@@ -36,6 +38,21 @@ export async function getHealth(): Promise<HealthResponse> {
 export async function getSessions(activeOnly?: boolean): Promise<SessionsResponse> {
   const query = activeOnly ? '?active=true' : '';
   return apiFetch<SessionsResponse>(`/api/sessions${query}`);
+}
+
+/**
+ * Get all projects with optional active filter
+ */
+export async function getProjects(activeOnly?: boolean): Promise<ProjectsResponse> {
+  const query = activeOnly ? '?active=true' : '';
+  return apiFetch<ProjectsResponse>(`/api/sessions${query}`);
+}
+
+/**
+ * Get project detail by ID
+ */
+export async function getProject(projectId: string): Promise<ProjectDetailResponse> {
+  return apiFetch<ProjectDetailResponse>(`/api/projects/${projectId}`);
 }
 
 /**

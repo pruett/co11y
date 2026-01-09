@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { scanClaudeProjects } from './project-scanner';
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
-import { tmpdir } from 'os';
+import { tmpdir, homedir } from 'os';
 
 const TEST_CLAUDE_DIR = join(tmpdir(), 'co11y-test-claude');
 const TEST_PROJECTS_DIR = join(TEST_CLAUDE_DIR, 'projects');
@@ -39,16 +39,19 @@ describe('scanClaudeProjects', () => {
     expect(projects).toContainEqual({
       encodedPath: '-Users-john-code-myapp',
       decodedPath: '/Users/john/code/myapp',
+      displayName: '/Users/john/code/myapp',
       fullPath: join(TEST_PROJECTS_DIR, '-Users-john-code-myapp'),
     });
     expect(projects).toContainEqual({
       encodedPath: '-home-user-projects-website',
       decodedPath: '/home/user/projects/website',
+      displayName: '/home/user/projects/website',
       fullPath: join(TEST_PROJECTS_DIR, '-home-user-projects-website'),
     });
     expect(projects).toContainEqual({
       encodedPath: '-Users-jane-Documents',
       decodedPath: '/Users/jane/Documents',
+      displayName: '/Users/jane/Documents',
       fullPath: join(TEST_PROJECTS_DIR, '-Users-jane-Documents'),
     });
   });

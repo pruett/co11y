@@ -113,6 +113,31 @@ export interface SessionDetail extends Session {
   transcript: TranscriptRecord[];
 }
 
+// Project with nested sessions
+export interface Project {
+  id: string;                  // Encoded path (e.g., "-Users-kevinpruett-code")
+  name: string;                // Display name without home dir (e.g., "code/co11y")
+  fullPath: string;            // Full decoded path (e.g., "/Users/kevinpruett/code/co11y")
+  sessions: Session[];         // All sessions in this project
+  sessionCount: number;
+  activeSessionCount: number;
+  lastActivity: string;
+  totalMessages: number;
+  totalToolCalls: number;
+  totalSubagents: number;
+}
+
+export interface ProjectsResponse {
+  projects: Project[];
+  totalProjects: number;
+  totalSessions: number;
+  activeSessionCount: number;
+}
+
+export interface ProjectDetailResponse {
+  project: Project;
+}
+
 // Subagent types
 export interface Subagent {
   agentId: string;
@@ -216,12 +241,17 @@ export interface SSESessionsEvent {
   data: Session[];
 }
 
+export interface SSEProjectsEvent {
+  type: 'projects';
+  data: Project[];
+}
+
 export interface SSEHeartbeatEvent {
   type: 'heartbeat';
   timestamp: string;
 }
 
-export type SSEEvent = SSEHookEvent | SSESessionsEvent | SSEHeartbeatEvent;
+export type SSEEvent = SSEHookEvent | SSESessionsEvent | SSEProjectsEvent | SSEHeartbeatEvent;
 
 // Stats types
 export interface DailyActivity {

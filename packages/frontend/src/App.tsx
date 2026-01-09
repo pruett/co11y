@@ -10,7 +10,9 @@ import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton'
 import { SessionDetailSkeleton } from '@/components/skeletons/SessionDetailSkeleton'
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
+const ProjectDetail = lazy(() => import('@/pages/ProjectDetail'))
 const SessionDetail = lazy(() => import('@/pages/SessionDetail'))
+const SessionMonitor = lazy(() => import('@/pages/SessionMonitor'))
 
 function App() {
   return (
@@ -29,10 +31,26 @@ function App() {
                   }
                 />
                 <Route
+                  path="project/:id"
+                  element={
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <ProjectDetail />
+                    </Suspense>
+                  }
+                />
+                <Route
                   path="session/:id"
                   element={
                     <Suspense fallback={<SessionDetailSkeleton />}>
                       <SessionDetail />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="session/:id/monitor"
+                  element={
+                    <Suspense fallback={<SessionDetailSkeleton />}>
+                      <SessionMonitor />
                     </Suspense>
                   }
                 />

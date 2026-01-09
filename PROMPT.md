@@ -1,7 +1,7 @@
 # Agent Instructions
 You are an autonomous coding agent working on co11y, a web dashboard for monitoring Claude Code activity in real-time.
 
-1. Study the project specifications at @prd.json
+1. Study the project specifications at @prd-ui.json
 2. Familiarize yourself with the current status of the project: @progress.txt
 3. Pick ONLY ONE specification to work on where `passes: false`. Choose the SINGLE HIGHEST PRIORITY ITEM to work on next - NOT necessarily the first in the list. 
 4. Implement the task considing the acceptance criteria, informing which tests to write to verify task completeness
@@ -10,7 +10,7 @@ You are an autonomous coding agent working on co11y, a web dashboard for monitor
 - Stage all files: `git add --all`
 - Commit: `git commit -m "<id>: <title>"`
 - Push: `git push -u origin`
-7. Update the @prd.json and mark the item done by editing its `passes: false` to `passes: true` to indicate the item is complete
+7. Update the @prd-ui.json and mark the item done by editing its `passes: false` to `passes: true` to indicate the item is complete
 8. Run `git show HEAD` to get the most recent changes made to the project and APPEND learnings to @progress.txt. This entry should follow the format:
 
 ## Progress Report Format

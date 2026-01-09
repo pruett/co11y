@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
 import { getSessions } from './routes/sessions';
+import { getProject } from './routes/project';
 import { getSessionDetail, getSessionTranscript } from './routes/session-detail';
 import { getSubagents } from './routes/subagents';
 import { getSubagentTranscript } from './routes/subagent-transcript';
@@ -31,6 +32,9 @@ app.get('/api/sessions', getSessions());
 app.get('/api/sessions/:id', getSessionDetail());
 app.get('/api/sessions/:id/transcript', getSessionTranscript());
 app.get('/api/sessions/:sessionId/subagents', getSubagents());
+
+// Projects endpoints
+app.get('/api/projects/:id', getProject());
 
 // Subagent endpoints
 app.get('/api/subagents/:agentId/transcript', getSubagentTranscript());

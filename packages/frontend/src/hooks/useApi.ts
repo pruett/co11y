@@ -1,6 +1,8 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import type {
   SessionsResponse,
+  ProjectsResponse,
+  ProjectDetailResponse,
   SessionDetail,
   TranscriptResponse,
   SubagentsResponse,
@@ -10,6 +12,8 @@ import type {
 import {
   getHealth,
   getSessions,
+  getProjects,
+  getProject,
   getSessionDetail,
   getSessionTranscript,
   getSubagents,
@@ -24,6 +28,9 @@ export const queryKeys = {
   health: ['health'] as const,
   sessions: (activeOnly?: boolean) =>
     activeOnly ? (['sessions', 'active'] as const) : (['sessions'] as const),
+  projects: (activeOnly?: boolean) =>
+    activeOnly ? (['projects', 'active'] as const) : (['projects'] as const),
+  project: (projectId: string) => ['projects', projectId] as const,
   sessionDetail: (sessionId: string) => ['sessions', sessionId] as const,
   sessionTranscript: (sessionId: string, limit: number, offset: number) =>
     ['sessions', sessionId, 'transcript', limit, offset] as const,
@@ -52,6 +59,31 @@ export function useSessions(
   return useQuery({
     queryKey: queryKeys.sessions(activeOnly),
     queryFn: () => getSessions(activeOnly),
+  });
+}
+
+/**
+ * Hook for fetching all projects
+ */
+export function useProjects(
+  activeOnly?: boolean
+): UseQueryResult<ProjectsResponse, Error> {
+  return useQuery({
+    queryKey: queryKeys.projects(activeOnly),
+    queryFn: () => getProjects(activeOnly),
+  });
+}
+
+/**
+ * Hook for fetching project detail
+ */
+export function useProject(
+  projectId: string
+): UseQueryResult<ProjectDetailResponse, Error> {
+  return useQuery({
+    queryKey: queryKeys.project(projectId),
+    queryFn: () => getProject(projectId),
+    enabled: !!projectId, // Only fetch if projectId is provided
   });
 }
 
