@@ -19,11 +19,10 @@ const HooksSetupWizard = lazy(() =>
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [hasReceivedHookEvent, setHasReceivedHookEvent] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const { data, isLoading, error } = useProjects(showActiveOnly);
+  const { data, isLoading, error } = useProjects(false);
 
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
@@ -49,10 +48,10 @@ export default function Dashboard() {
     }
   }, [projects, selectedIndex, navigate]);
 
-  // Reset selected index when projects change or filter changes
+  // Reset selected index when projects change
   useEffect(() => {
     setSelectedIndex(0);
-  }, [projects.length, showActiveOnly]);
+  }, [projects.length]);
 
   // Track if we've received any hook events
   useEffect(() => {
@@ -115,28 +114,12 @@ export default function Dashboard() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Monitor Claude Code sessions in real-time
-        </p>
-      </div>
-
-      {/* Filter Controls */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex gap-2">
-          <Button
-            variant={!showActiveOnly ? 'default' : 'outline'}
-            onClick={() => setShowActiveOnly(false)}
-          >
-            All Projects
-          </Button>
-          <Button
-            variant={showActiveOnly ? 'default' : 'outline'}
-            onClick={() => setShowActiveOnly(true)}
-          >
-            Active Only
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor Claude Code sessions in real-time
+          </p>
         </div>
 
         <Button
@@ -154,9 +137,7 @@ export default function Dashboard() {
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">
-              {showActiveOnly
-                ? 'No active projects found.'
-                : 'No projects found. Start using Claude Code to see projects appear here.'}
+              No projects found. Start using Claude Code to see projects appear here.
             </p>
           </CardContent>
         </Card>
