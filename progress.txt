@@ -1073,3 +1073,22 @@
   - Dashboard now always shows all projects (preparation for active-only filtering in UI-04)
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:42 - Spec UI-04
+- Filtered Dashboard to show only projects with active sessions
+- Added filter condition: projects.filter(project => project.activeSessionCount > 0)
+- Updated empty state message to reflect active-only filtering
+- Files changed: 3 files (25 insertions, 3 deletions)
+
+**Learnings for future iterations:**
+  - Array.filter() applied inline to data from useProjects hook for client-side filtering
+  - Filter condition checks activeSessionCount > 0 to show only projects with at least one active session
+  - Empty state message changed from "No projects found" to "No projects with active sessions"
+  - Filtering happens in the component before rendering, not in the API call
+  - This approach maintains flexibility - the API still returns all projects, filtering is presentation logic
+  - The filtered projects array is used for keyboard navigation (j/k/Enter) which automatically adapts
+  - useEffect dependency on projects.length still works correctly with filtered array
+  - SSE real-time updates work seamlessly with client-side filtering - new active sessions appear immediately
+  - bun typecheck and bun build both pass successfully - no type errors introduced
+  - Dashboard now shows only actionable projects (those with active sessions requiring attention)
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+
