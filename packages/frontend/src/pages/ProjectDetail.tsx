@@ -49,12 +49,6 @@ export default function ProjectDetail() {
     return (
       <div className="p-6">
         <Skeleton className="h-8 w-64 mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-        </div>
         <Skeleton className="h-96" />
       </div>
     );
@@ -102,55 +96,6 @@ export default function ProjectDetail() {
         </Button>
         <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
         <p className="text-muted-foreground">{project.fullPath}</p>
-      </div>
-
-      {/* Project Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Sessions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{project.sessionCount}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Sessions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">
-              {project.activeSessionCount}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Messages
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{project.totalMessages}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Tool Calls
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{project.totalToolCalls}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Sessions Table */}

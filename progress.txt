@@ -1092,3 +1092,21 @@
   - Dashboard now shows only actionable projects (those with active sessions requiring attention)
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:43 - Spec UI-05
+- Removed 4 summary stat cards from SessionDetail page (Messages, Tool Calls, Subagents, Status)
+- Removed grid layout containing stat cards from Overview tab
+- Session Information card with metadata remains intact
+- SessionDetail now shows only essential session metadata without summary statistics
+- Files changed: 1 file (43 deletions)
+
+**Learnings for future iterations:**
+  - SessionDetail page (not ProjectDetail) contains the Overview tab with stat cards
+  - The file is at packages/frontend/src/pages/SessionDetail.tsx
+  - Removing stat cards requires removing entire grid section (div with grid-cols-1 md:grid-cols-2 lg:grid-cols-4)
+  - Four stat cards showed: Messages, Tool Calls, Subagents, and Status
+  - Session Information card below stat cards must be preserved - it contains Session ID, Model, Working Directory, Git Branch, and Slug
+  - bun typecheck and bun --filter './packages/*' build are the correct commands for validation
+  - Pre-existing test failures in Playwright and React Testing Library are unrelated to UI changes
+  - SessionDetail simplification follows same pattern as Dashboard simplification (UI-01 through UI-04)
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

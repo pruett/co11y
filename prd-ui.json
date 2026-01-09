@@ -51,7 +51,7 @@
       "Project header/info remains but without stat cards",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Simplify ProjectDetail page layout"
   },
   {

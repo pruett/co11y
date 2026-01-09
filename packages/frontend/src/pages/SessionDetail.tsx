@@ -139,49 +139,6 @@ export default function SessionDetail() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Messages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{session.messageCount}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Tool Calls</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{session.toolCallCount}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Subagents</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{session.subagentCount}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Status</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge
-                  variant={session.status === 'active' ? 'default' : 'secondary'}
-                  className={session.status === 'active' ? 'bg-green-500' : ''}
-                >
-                  {session.status}
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Session Metadata */}
           <Card>
             <CardHeader>
