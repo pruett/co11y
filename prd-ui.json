@@ -88,7 +88,7 @@
       "State tracked via expandedSessionId",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Accordion pattern - mutual exclusion for expanded state"
   },
   {

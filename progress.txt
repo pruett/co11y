@@ -1170,3 +1170,27 @@
   - bun typecheck and bun --filter './packages/*' build both pass successfully
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:54 - Spec UI-08
+- Fixed Dashboard to use useProjects hook instead of useSessions (data structure mismatch)
+- Accordion behavior already implemented in UI-07 via expandedSessionId state
+- Only one session card can be expanded at a time (mutual exclusion pattern)
+- Expanding a session collapses any previously expanded session automatically
+- Click handler toggles expansion: setExpandedSessionId(isExpanded ? null : session.id)
+- Flattened sessions from all projects using flatMap before filtering to active only
+- Files changed: 1 file (6 insertions, 4 deletions)
+
+**Learnings for future iterations:**
+  - Accordion behavior is the mutual exclusion pattern: only one item expanded at a time
+  - Implementation uses single state variable (expandedSessionId) that stores the ID of expanded item or null
+  - When clicking a card: if it's expanded, set to null; if not expanded, set to its ID
+  - This automatically collapses previous card because only one ID can match at a time
+  - The accordion pattern was already implemented in UI-07, UI-08 just verified and fixed data loading
+  - Backend /api/sessions endpoint returns ProjectsResponse (with projects array), not SessionsResponse
+  - Frontend has both useSessions (expects SessionsResponse) and useProjects (expects ProjectsResponse) hooks
+  - Dashboard should use useProjects and flatten sessions: data.projects.flatMap(p => p.sessions)
+  - SessionsResponse has flat sessions array, ProjectsResponse has nested projects with sessions
+  - Backend tests failed because they expect old SessionsResponse format but API returns ProjectsResponse
+  - Pre-existing frontend test failures (60 pass, 38 fail) are React strict mode issues, not related to this change
+  - bun typecheck and bun --filter './packages/*' build both pass successfully
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

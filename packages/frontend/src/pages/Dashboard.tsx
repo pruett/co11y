@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { useProjects } from '@/hooks/useApi';
+import { useProjects, useSessionDetail } from '@/hooks/useApi';
 import { useEventSource } from '@/hooks/useEventSource';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +9,62 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const HooksSetupWizard = lazy(() =>
   import('@/components/HooksSetupWizard').then(module => ({ default: module.HooksSetupWizard }))
 );
+
+const TranscriptViewer = lazy(() =>
+  import('@/components/TranscriptViewer').then(module => ({ default: module.TranscriptViewer }))
+);
+
+/**
+ * Component that fetches and displays session transcript when expanded
+ */
+function ExpandedSessionContent({ sessionId }: { sessionId: string }) {
+  const { data: session, isLoading, error } = useSessionDetail(sessionId);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-sm text-red-500">
+        Failed to load transcript: {error.message}
+      </div>
+    );
+  }
+
+  if (!session || !session.transcript || session.transcript.length === 0) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        No transcript available for this session.
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-h-[600px] overflow-y-auto">
+      <Suspense fallback={
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+      }>
+        <TranscriptViewer transcript={session.transcript} />
+      </Suspense>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [showWizard, setShowWizard] = useState(false);
@@ -154,10 +206,8 @@ export default function Dashboard() {
                   </div>
                 </CardHeader>
                 {isExpanded && (
-                  <CardContent>
-                    <p className="text-muted-foreground">
-                      Transcript content will be shown here (UI-09)
-                    </p>
+                  <CardContent className="pt-6">
+                    <ExpandedSessionContent sessionId={session.id} />
                   </CardContent>
                 )}
               </Card>
