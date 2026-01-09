@@ -1031,3 +1031,24 @@
   - Dashboard now shows only project summary stats cards without detailed analytics
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:36 - Spec UI-02
+- Removed 4 summary stat cards from Dashboard page (Projects, Total Sessions, Active Sessions, Active Subagents)
+- Removed entire project summary stats grid section from Dashboard.tsx
+- Removed unused variable declarations (totalProjects, totalSessions, activeCount, totalSubagents)
+- Removed useMemo import as it's no longer needed
+- Dashboard layout adjusts cleanly without stat cards - filter controls now appear directly below header
+- Files changed: 1 file (1 insertion, 56 deletions)
+
+**Learnings for future iterations:**
+  - Dashboard simplification follows a methodical approach: remove analytics first, then stat cards, then filters
+  - When removing UI sections, must also remove associated variable calculations and unused imports
+  - useMemo was used for totalSubagents calculation - no longer needed after removing stat cards
+  - Removing stat cards section required removing 52 lines of JSX (4 Card components with headers and content)
+  - Dashboard data from useProjects hook still includes totalProjects, totalSessions, activeSessionCount but no longer displayed
+  - Filter controls (All Projects / Active Only) remain in place for UI-03 to remove
+  - bun typecheck passes successfully after changes - no TypeScript errors
+  - bun build passes successfully - frontend builds without issues
+  - Pre-existing test failures in backend session tests and Playwright e2e tests not related to this change
+  - Dashboard now shows header with description, filter controls, and projects table only
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

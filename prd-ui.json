@@ -18,7 +18,7 @@
       "Dashboard layout adjusts cleanly without stat cards",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Remove the stat cards grid from top of Dashboard"
   },
   {
