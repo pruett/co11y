@@ -1116,3 +1116,24 @@
   - Pre-existing test failures in Playwright and React Testing Library are unrelated to UI changes
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:47 - Spec UI-06
+- Filtered ProjectDetail page to show only active sessions
+- Added filter condition: sessions.filter(session => session.status === 'active')
+- Updated empty state message from "No sessions found" to "No active sessions for this project"
+- No toggle UI needed - filtering applied automatically without user control
+- Files changed: 1 file (3 insertions, 2 deletions)
+
+**Learnings for future iterations:**
+  - ProjectDetail follows same filtering pattern as Dashboard (UI-04) for consistency
+  - Array.filter() applied to sessions array from useProject hook before rendering
+  - Filter condition uses strict equality: session.status === 'active'
+  - Empty state message must reflect the filtered view to avoid user confusion
+  - No toggle to view idle sessions - this is an intentional UX decision to simplify the interface
+  - Keyboard navigation (j/k/Enter) works seamlessly with filtered sessions array
+  - useEffect dependency on sessions.length adapts automatically to filtered array length
+  - Client-side filtering maintains separation of concerns - API returns all data, UI decides what to show
+  - Real-time updates via SSE work correctly with filtered view - new active sessions appear immediately
+  - bun typecheck and bun build both pass successfully - no type errors introduced
+  - This completes the "active-only" filtering approach across both Dashboard and ProjectDetail pages
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+
