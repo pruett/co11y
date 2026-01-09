@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { useSessions } from '@/hooks/useApi';
+import { useProjects } from '@/hooks/useApi';
 import { useEventSource } from '@/hooks/useEventSource';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,13 +18,15 @@ export default function Dashboard() {
   const [showWizard, setShowWizard] = useState(false);
   const [hasReceivedHookEvent, setHasReceivedHookEvent] = useState(false);
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
-  const { data, isLoading, error } = useSessions(false);
+  const { data, isLoading, error } = useProjects(false);
 
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
 
-  // Filter to show only active sessions
-  const sessions = (data?.sessions || []).filter(session => session.status === 'active');
+  // Flatten all sessions from all projects and filter to show only active sessions
+  const sessions = (data?.projects || [])
+    .flatMap(project => project.sessions)
+    .filter(session => session.status === 'active');
 
   // Track if we've received any hook events
   useEffect(() => {
