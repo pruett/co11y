@@ -1052,3 +1052,24 @@
   - Dashboard now shows header with description, filter controls, and projects table only
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:39 - Spec UI-03
+- Removed "All Projects / Active Only" filter toggle from Dashboard
+- Removed showActiveOnly state variable and useState import
+- Changed useProjects hook to always use false parameter (show all projects)
+- Reorganized Dashboard header layout - title/description now in left div, Setup Hooks button on right
+- Removed conditional empty state message logic (now always shows generic "No projects found" message)
+- Updated useEffect dependency to remove showActiveOnly from selectedIndex reset logic
+- Files changed: 1 file (9 insertions, 28 deletions)
+
+**Learnings for future iterations:**
+  - Removing filter controls requires updating multiple areas: state variables, API calls, dependencies, and conditional UI
+  - When removing a filter toggle, must update the API hook call parameter to a constant value
+  - useEffect dependencies must be updated when state variables are removed to prevent stale closure issues
+  - Dashboard header layout reorganization: wrap title/description in div for flex alignment with action buttons
+  - Conditional empty state messages simplified when filter options are removed
+  - Pre-existing test failures (54 fail) in backend session tests and Playwright e2e tests are not related to UI changes
+  - bun typecheck passes successfully - no TypeScript errors introduced
+  - bun build passes successfully with no new warnings or errors
+  - Dashboard now always shows all projects (preparation for active-only filtering in UI-04)
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

@@ -29,7 +29,7 @@
       "No filter UI elements remain in Dashboard header",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Toggle no longer needed since we always show active-only"
   },
   {

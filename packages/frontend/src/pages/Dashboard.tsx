@@ -27,7 +27,8 @@ export default function Dashboard() {
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
 
-  const projects = data?.projects || [];
+  // Filter to show only projects with active sessions
+  const projects = (data?.projects || []).filter(project => project.activeSessionCount > 0);
 
   // Keyboard shortcuts: j/k for navigation, Enter to open
   useHotkeys('j', () => {
@@ -137,7 +138,7 @@ export default function Dashboard() {
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">
-              No projects found. Start using Claude Code to see projects appear here.
+              No projects with active sessions. Start a Claude Code session to see projects appear here.
             </p>
           </CardContent>
         </Card>
