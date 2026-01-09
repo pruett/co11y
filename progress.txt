@@ -1222,3 +1222,23 @@
   - bun --filter './packages/*' build passes successfully with optimized bundle sizes
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 14:00 - Spec UI-10
+- Implemented sorting for sessions by lastActivity in descending order (most recent first)
+- Added .sort() method to session array processing chain after filter
+- Sort applies Date comparison: new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
+- Sessions automatically re-sort when data refreshes via SSE or React Query polling
+- Files changed: 1 file (2 insertions, 1 deletion)
+
+**Learnings for future iterations:**
+  - Array.sort() can be chained after .filter() for clean, functional data processing
+  - Date comparison requires converting ISO string timestamps to Date objects, then to milliseconds via .getTime()
+  - Sort order is descending (b - a) to show most recent sessions at the top
+  - React automatically re-renders when sessions array changes, so sorting updates happen in real-time
+  - Session sorting happens in the component after data fetching, not in the API layer
+  - The sorted order persists through SSE updates and React Query cache invalidation
+  - Comment updated to reflect all transformations: flatten, filter, sort
+  - Pre-existing backend test failures (192 pass, 16 skip, 14 fail) are related to API response structure changes
+  - bun typecheck passes successfully - all TypeScript types are correct
+  - bun --filter './packages/*' build passes successfully with optimized bundle sizes
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

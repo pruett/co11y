@@ -107,6 +107,13 @@ export default function Dashboard() {
     }
   }, [hasReceivedHookEvent]);
 
+  // Auto-expand the most recent (first) session on mount
+  useEffect(() => {
+    if (sessions.length > 0 && expandedSessionId === null) {
+      setExpandedSessionId(sessions[0].id);
+    }
+  }, [sessions, expandedSessionId]);
+
   if (isLoading) {
     return (
       <div className="p-6">
