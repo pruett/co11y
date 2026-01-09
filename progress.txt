@@ -1137,3 +1137,36 @@
   - This completes the "active-only" filtering approach across both Dashboard and ProjectDetail pages
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:50 - Spec UI-07
+- Replaced projects table with expandable session cards in Dashboard
+- Changed Dashboard to use useSessions hook instead of useProjects
+- Sessions displayed as Card components with clickable CardHeader
+- Card header shows: project name, status badge, last activity, message count, tool calls, and model
+- ChevronDown/ChevronRight icons indicate expand/collapse state
+- Click on card header toggles expansion via expandedSessionId state
+- Removed keyboard navigation (j/k/Enter) for projects (will be re-implemented for sessions in future specs)
+- Filtered to show only active sessions (status === 'active')
+- Empty state message updated for no active sessions
+- Files changed: 1 file (52 insertions, 79 deletions)
+
+**Learnings for future iterations:**
+  - Dashboard completely redesigned from project-based table view to session-based card view
+  - useSessions hook returns SessionsResponse with sessions array, not projects
+  - Session interface has different fields than Project: id, project, projectPath, status, lastActivity, messageCount, toolCallCount, subagentCount, model, etc.
+  - expandedSessionId state tracks which session card is expanded (null when none expanded)
+  - Card expansion uses ternary operator: setExpandedSessionId(isExpanded ? null : session.id)
+  - CardHeader can be made clickable with cursor-pointer class and onClick handler
+  - ChevronDown/ChevronRight icons from lucide-react visually indicate expand/collapse state
+  - Placeholder content in expanded card: "Transcript content will be shown here (UI-09)"
+  - UI-08 will implement accordion behavior (mutual exclusion) for expanded cards
+  - UI-09 will integrate TranscriptViewer into expanded card content
+  - UI-10 will add sorting by lastActivity descending
+  - UI-11 will auto-expand the most recent session on mount
+  - Badge with animate-pulse class creates visual indicator for active sessions
+  - formatDistanceToNow from date-fns displays relative timestamps
+  - Model name displayed with font-mono class for code-like appearance
+  - Session cards use space-y-4 for vertical spacing between cards
+  - CardHeader hover effect with hover:bg-accent/50 and transition-colors
+  - bun typecheck and bun --filter './packages/*' build both pass successfully
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

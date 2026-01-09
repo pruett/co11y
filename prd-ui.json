@@ -76,7 +76,7 @@
       "Click on card header toggles expansion",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Use shadcn Card component with CardHeader for clickable area"
   },
   {
