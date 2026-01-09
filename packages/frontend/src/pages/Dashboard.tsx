@@ -1,16 +1,13 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { formatDistanceToNow } from 'date-fns';
-import { useProjects } from '@/hooks/useApi';
+import { useSessions } from '@/hooks/useApi';
 import { useEventSource } from '@/hooks/useEventSource';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Settings } from 'lucide-react';
+import { Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const HooksSetupWizard = lazy(() =>
@@ -18,41 +15,16 @@ const HooksSetupWizard = lazy(() =>
 );
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [hasReceivedHookEvent, setHasReceivedHookEvent] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const { data, isLoading, error } = useProjects(false);
+  const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
+  const { data, isLoading, error } = useSessions(false);
 
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
 
-  // Filter to show only projects with active sessions
-  const projects = (data?.projects || []).filter(project => project.activeSessionCount > 0);
-
-  // Keyboard shortcuts: j/k for navigation, Enter to open
-  useHotkeys('j', () => {
-    if (projects.length > 0) {
-      setSelectedIndex((prev) => Math.min(prev + 1, projects.length - 1));
-    }
-  }, [projects.length]);
-
-  useHotkeys('k', () => {
-    if (projects.length > 0) {
-      setSelectedIndex((prev) => Math.max(prev - 1, 0));
-    }
-  }, [projects.length]);
-
-  useHotkeys('enter', () => {
-    if (projects.length > 0 && projects[selectedIndex]) {
-      navigate(`/project/${projects[selectedIndex].id}`);
-    }
-  }, [projects, selectedIndex, navigate]);
-
-  // Reset selected index when projects change
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [projects.length]);
+  // Filter to show only active sessions
+  const sessions = (data?.sessions || []).filter(session => session.status === 'active');
 
   // Track if we've received any hook events
   useEffect(() => {
@@ -133,61 +105,62 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* Projects Table */}
-      {projects.length === 0 ? (
+      {/* Sessions Cards */}
+      {sessions.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">
-              No projects with active sessions. Start a Claude Code session to see projects appear here.
+              No active sessions. Start a Claude Code session to see it appear here.
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project</TableHead>
-                <TableHead className="text-right">Sessions</TableHead>
-                <TableHead className="text-right">Active</TableHead>
-                <TableHead>Last Activity</TableHead>
-                <TableHead className="text-right">Messages</TableHead>
-                <TableHead className="text-right">Tool Calls</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.map((project, index) => (
-                <TableRow
-                  key={project.id}
-                  data-state={index === selectedIndex ? 'selected' : undefined}
-                  className={cn(
-                    "cursor-pointer",
-                    index === selectedIndex && "bg-muted"
-                  )}
-                  onClick={() => navigate(`/project/${project.id}`)}
+        <div className="space-y-4">
+          {sessions.map((session) => {
+            const isExpanded = expandedSessionId === session.id;
+            return (
+              <Card key={session.id}>
+                <CardHeader
+                  className="cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => setExpandedSessionId(isExpanded ? null : session.id)}
                 >
-                  <TableCell>
-                    <div className="font-medium">{project.name}</div>
-                  </TableCell>
-                  <TableCell className="text-right">{project.sessionCount}</TableCell>
-                  <TableCell className="text-right">
-                    {project.activeSessionCount > 0 ? (
-                      <Badge className="bg-green-500 text-white">
-                        {project.activeSessionCount}
-                      </Badge>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <CardTitle className="text-lg">{session.project}</CardTitle>
+                        <Badge className={cn(
+                          "bg-green-500 text-white",
+                          session.status === 'active' && "animate-pulse"
+                        )}>
+                          {session.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                        <span>
+                          Last activity: {formatDistanceToNow(new Date(session.lastActivity), { addSuffix: true })}
+                        </span>
+                        <span>{session.messageCount} messages</span>
+                        <span>{session.toolCallCount} tool calls</span>
+                        {session.model && <span className="font-mono">{session.model}</span>}
+                      </div>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
                     ) : (
-                      <span className="text-muted-foreground">0</span>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     )}
-                  </TableCell>
-                  <TableCell>
-                    {formatDistanceToNow(new Date(project.lastActivity), { addSuffix: true })}
-                  </TableCell>
-                  <TableCell className="text-right">{project.totalMessages}</TableCell>
-                  <TableCell className="text-right">{project.totalToolCalls}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                </CardHeader>
+                {isExpanded && (
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      Transcript content will be shown here (UI-09)
+                    </p>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
 
