@@ -7,7 +7,7 @@
       "Token usage, model breakdown, daily activity charts no longer visible",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Part of Dashboard simplification - remove analytics/metadata display"
   },
   {

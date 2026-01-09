@@ -1011,3 +1011,23 @@
   - Pre-existing test failures (40 fail) are unrelated to Dashboard changes (React strict mode, Playwright setup issues)
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:32 - Spec UI-01
+- Removed StatsOverview component from Dashboard.tsx
+- Removed lazy import for StatsOverview component
+- Removed Suspense wrapper and skeleton fallback for stats overview section
+- Token usage, model breakdown, and daily activity charts no longer visible in Dashboard
+- Fixed pre-existing test failures in project-scanner.test.ts by adding displayName field to test expectations
+- Files changed: 27 files (2185 insertions, 155 deletions)
+
+**Learnings for future iterations:**
+  - Dashboard simplification starts with removing analytics/metadata display components
+  - StatsOverview was lazy-loaded using React.lazy() with Suspense fallback
+  - Removing lazy-loaded components requires removing both import statement and Suspense wrapper
+  - Pre-existing type errors in tests can block progress - fix them as part of the task
+  - ClaudeProject interface requires displayName field (calculated by removing home directory prefix)
+  - Test fixtures must match the exact interface shape including all required fields
+  - displayName is calculated as: fullDecodedPath.startsWith(home) ? fullDecodedPath.slice(home.length + 1) : fullDecodedPath
+  - bun typecheck catches missing fields in test fixtures before they cause runtime issues
+  - Dashboard now shows only project summary stats cards without detailed analytics
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+
