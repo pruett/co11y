@@ -19,7 +19,8 @@ export default function ProjectDetail() {
   const { data, isLoading, error } = useProject(id!);
 
   const project = data?.project;
-  const sessions = project?.sessions || [];
+  // Filter to show only active sessions
+  const sessions = (project?.sessions || []).filter(session => session.status === 'active');
 
   // Keyboard shortcuts: j/k for navigation, Enter to open
   useHotkeys('j', () => {
@@ -107,7 +108,7 @@ export default function ProjectDetail() {
           {sessions.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-muted-foreground">
-                No sessions found for this project.
+                No active sessions for this project.
               </p>
             </div>
           ) : (
