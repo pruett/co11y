@@ -1194,3 +1194,31 @@
   - bun typecheck and bun --filter './packages/*' build both pass successfully
   - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
 
+## 2026-01-09 13:57 - Spec UI-09
+- Integrated TranscriptViewer component into expanded session cards in Dashboard
+- Created ExpandedSessionContent component that fetches session detail when card is expanded
+- Added lazy-loading for TranscriptViewer using React.lazy() and Suspense
+- Transcript fetched via useSessionDetail hook only when session is expanded (lazy-load optimization)
+- Added loading skeleton while transcript is being fetched
+- Implemented max-height of 600px with overflow scroll for transcript area
+- Added error handling for failed transcript loads
+- Added empty state message when no transcript is available
+- Files changed: 3 files (80 insertions, 6 deletions)
+
+**Learnings for future iterations:**
+  - Lazy-loading TranscriptViewer prevents loading heavy syntax highlighting library until needed
+  - useSessionDetail hook provides full session with transcript array when fetching session by ID
+  - ExpandedSessionContent component pattern allows conditional data fetching based on expansion state
+  - React.lazy() requires component transformation: import('X').then(module => ({ default: module.X }))
+  - Suspense fallback should match the loading skeleton pattern of the actual content
+  - max-h-[600px] with overflow-y-auto provides scrollable transcript area without dominating viewport
+  - Only fetch transcript data when expandedSessionId matches the session.id (optimization)
+  - Loading state shows skeleton, error state shows error message, empty state shows helpful message
+  - TranscriptViewer component is reused from SessionDetail page implementation
+  - CardContent className="pt-6" adds proper spacing between header and transcript content
+  - Skeleton component with space-y-3 provides visual feedback during loading
+  - Pre-existing test failures (251 pass, 55 fail) are backend sessions.test.ts and React strict mode issues
+  - bun typecheck passes successfully - all TypeScript types are correct
+  - bun --filter './packages/*' build passes successfully with optimized bundle sizes
+  - Remote git repository: github.com:pruett/co11y.git - all changes pushed successfully
+

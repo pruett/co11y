@@ -75,10 +75,11 @@ export default function Dashboard() {
   // Connect to SSE for real-time updates
   const { lastEvent } = useEventSource();
 
-  // Flatten all sessions from all projects and filter to show only active sessions
+  // Flatten all sessions from all projects, filter to show only active sessions, and sort by lastActivity descending
   const sessions = (data?.projects || [])
     .flatMap(project => project.sessions)
-    .filter(session => session.status === 'active');
+    .filter(session => session.status === 'active')
+    .sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime());
 
   // Track if we've received any hook events
   useEffect(() => {

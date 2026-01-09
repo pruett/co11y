@@ -101,7 +101,7 @@
       "Transcript area has max-height with overflow scroll",
       "bun typecheck passes"
     ],
-    "passes": false,
+    "passes": true,
     "additionalNotes": "Lazy-load transcript data only when session is expanded"
   },
   {
